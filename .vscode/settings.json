@@ -83,7 +83,6 @@
         "variant": "cpp"
     },
     "code-runner.executorMap": {
-        "c": "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
         // "cpp": "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt",
         "cpp": "g++ -o main main.cpp ConcatStringTree.cpp -I . -std=c++11 && $dir$fileNameWithoutExt",
     },

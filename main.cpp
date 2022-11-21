@@ -60,44 +60,69 @@ void tc4() {
     // delete s1;
     // delete s2;
 }
-void tc5() {
-    cst sA("Hello");
-    cst sB(",_t");
-    cst sC("his_is");
-    cst sD("_an");
+void tcBasic() {
+    ConcatStringTree sA("Hello"), sB(",_t"), sC("his_is"), sD("_an");
     cst s1(sA.concat(sB));
     cst s2(sC.concat(sD));
     cst s3(s1.concat(s2));
     cst s4 = s3.subString(1, 10);
     cst s5 = s4.reverse();
-    // cout << sA.toString() << endl;
-    // cout << sB.toString() << endl;
-    // cout << sC.toString() << endl;
-    // cout << sD.toString() << endl;
-    // cout << s1.toString() << endl;
-    // cout << s2.toString() << endl;
-    // cout << s3.toString() << endl;
-    cout << s4.toString() << endl;
-    cout << s5.toString() << endl;
-    // char a[9]; for (int i = 0; i < s4.length(); i++) a[i] = s4.get(i); for (int i = 0; i < s4.length(); i++) cout << s4.indexOf(a[i]) << " ";cout << endl;
+    cout << s1.length() << " " << s2.length() << " ";
+    try {
+        cout << s1.get(14);
+    } catch (out_of_range &ofc) {
+        cout << ofc.what() << " ";
+    }
+    cout << s2.get(1) << endl;
+    cout << s1.indexOf('i') << " " << s2.indexOf('i') << endl;
+    cout << s1.toStringPreOrder() << endl;
     cout << s5.toStringPreOrder() << endl;
+
+    cout << s1.toString() << endl;
+    cout << s2.toString() << endl;
+    cout << s3.toString() << endl;
+    // char a[9]; for (int i = 0; i < s4.length(); i++) a[i] = s4.get(i); for (int i = 0; i < s4.length(); i++) cout << s4.indexOf(a[i]) << " ";cout << endl;
+    
+    cout << s1.getParTreeSize("") << " ";
+    cout << s3.getParTreeSize("ll") << endl; // == sA.getParTreeSize("")
+    cout << s1.getParTreeStringPreOrder("") << endl;
+    cout << s2.getParTreeStringPreOrder("") << endl;
+    cout << s3.getParTreeStringPreOrder("") << endl;
 }
-void randomtc() {
+void tcParentsTree() {
     ConcatStringTree sA("ABC"), sB("DEF"), sC("GHI");
     ConcatStringTree s1 = sA.concat(sB);
     ConcatStringTree s2 = sB.concat(sC);
     ConcatStringTree s3 = s1.concat(s2);
-    ConcatStringTree s4 = s3.subString(1, s3.length()-1);
-    ConcatStringTree s5 = s3.reverse();
-    ConcatStringTree s6 = s1.concat(s3); // ABCDEFABCDEFDEFGHI
-    ConcatStringTree s7 = s6.concat(s2); // ABCDEFABCDEFDEFGHIDEFGHI
-    ConcatStringTree s8 = s3.concat(s7); // ABCDEFDEFGHIABCDEFABCDEFDEFGHIDEFGHI
-    cout << s4.toString() << " " << s4.length() << endl; // ConcatStringTree["BCDEFDEFGH"] 10
-    cout << s5.toString() << " " << s5.length() << endl; // ConcatStringTree["IHGFEDFEDCBA"] 12
-    cout << s8.toString() << " " << s8.length() << endl; // ConcatStringTree["ABCDEFDEFGHIABCDEFABCDEFDEFGHIDEFGHI"] 36
-    cout << s8.toStringPreOrder() << endl;
-    // ConcatStringTree[(LL=12,L=36,<NULL>);(LL=6,L=12,<NULL>);(LL=3,L=6,<NULL>);(LL=0,L=3,"ABC");(LL=0,L=3,"DEF");(LL=3,L=6,<NULL>);(LL=0,L=3,"DEF");(LL=0,L=3,"GHI");(LL=18,L=24,<NULL>);(LL=6,L=18,<NULL>);(LL=3,L=6,<NULL>);(LL=0,L=3,"ABC");(LL=0,L=3,"DEF");(LL=6,L=12,<NULL>);(LL=3,L=6,<NULL>);(LL=0,L=3,"ABC");(LL=0,L=3,"DEF");(LL=3,L=6,<NULL>);(LL=0,L=3,"DEF");(LL=0,L=3,"GHI");(LL=3,L=6,<NULL>);(LL=0,L=3,"DEF");(LL=0,L=3,"GHI")]
-    // (this answer may not be correct)
+    cout << sA.getParTreeStringPreOrder("") << '\n'; // ParentsTree[(id=1);(id=4)]
+    cout << sB.getParTreeStringPreOrder("") << '\n'; // ParentsTree[(id=4);(id=2);(id=5)]
+    cout << sC.getParTreeStringPreOrder("") << '\n'; // ParentsTree[(id=3);(id=5)]
+    cout << s1.getParTreeStringPreOrder("") << '\n'; // ParentsTree[(id=4);(id=6)]
+    cout << s2.getParTreeStringPreOrder("") << '\n'; // ParentsTree[(id=5);(id=6)]
+    cout << s3.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=6)]
+    cout << endl;
+
+    ConcatStringTree s4 = s1.concat(s3); // ABCDEFABCDEFDEFGHI
+    ConcatStringTree s5 = s4.concat(s2); // ABCDEFABCDEFDEFGHIDEFGHI
+    ConcatStringTree s6 = s3.concat(s5); // ABCDEFDEFGHIABCDEFABCDEFDEFGHIDEFGHI
+    ConcatStringTree s7 = s1.concat(s2);
+    cout << s6.toString() << " " << s6.length() << endl; // ConcatStringTree["ABCDEFDEFGHIABCDEFABCDEFDEFGHIDEFGHI"] 36
+    cout << s1.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=6);(id=4);(id=7);(id=10)]
+    cout << s2.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=6);(id=5);(id=8);(id=10)]
+    cout << s3.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=7);(id=6);(id=9)]
+    cout << s4.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=7);(id=8)]
+    cout << s5.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=8);(id=9)]
+    cout << s6.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=9)]
+    cout << s7.getParTreeStringPreOrder("") << endl; // ParentsTree[(id=10)]
+    cout << endl;
+
+    cout << s6.getParTreeStringPreOrder("rlrl") << endl; // ParentsTree[(id=6);(id=4);(id=7);(id=10)]
+
+    // Check delete in subString/reverse
+    ConcatStringTree s8 = s3.subString(1, s3.length()-1); // ConcatStringTree["BCDEFDEFGH"]
+    ConcatStringTree s9 = s3.reverse(); // ConcatStringTree["IHGFEDFEDCBA"]
+    ConcatStringTree s10 = s8.concat(s9); // ConcatStringTree["BCDEFDEFGHIHGFEDFEDCBA"]
+    cout << s10.toString() << endl;
 }
 void mytc(){
     ConcatStringTree s1("this_is_");
@@ -150,18 +175,29 @@ void mytc(){
     cout<<ihgfedcb.toString()<<endl;
     cout<<daivcl.toString()<<endl;
 }
-void tc7() {
-    cst sA("abc");
-    cst s1 = sA.concat(sA);
-    cout << s1.toString() << endl;
-    cout << s1.toStringPreOrder() << endl;
+void randomtc() {
+    ConcatStringTree *s1 = new ConcatStringTree("he"), *s2 = new ConcatStringTree("t_"), *s5 = new ConcatStringTree("_lai_sang_thu");
+    ConcatStringTree *s3 = new ConcatStringTree(s1->concat(*s2));
+    ConcatStringTree *s4 = new ConcatStringTree(s3->concat(*s1));
+    ConcatStringTree *s6 = new ConcatStringTree(s4->concat(*s5));
+    cout << s4->toString() << endl;
+    cout << s5->toString() << endl;
+    cout << s6->toString() << endl;
+    delete s5;
+    delete s4;
+    delete s2;
+    delete s3;
+    delete s6;
+    delete s1;
 }
 int main() {
-    tc1();
+    // tc1();
     // cout << '\n';
-    tc2();
+    // tc2();
     // mytc();
     // tc3();
+    tcParentsTree();
+    // tcBasic();
     // randomtc();
     cout << "\nTesting Succeeded";
     return 0;

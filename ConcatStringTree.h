@@ -3,7 +3,7 @@
 
 #include "main.h"
 
-class ParentsTree;
+class ParentsTree; // forward declaration
 class ConcatStringTree {
 // Forward declaration of Node
 public:
@@ -20,6 +20,7 @@ private:
     Node *subRec(Node *node, int from, int to) const;
     void invertRec(Node *node) const;
     void clear(Node *node);
+    void clearBinaryTree(Node *node);
 public:
     ConcatStringTree(const char * s);
     int length() const;
@@ -43,6 +44,8 @@ public:
         int leftLength;
         Node *left;
         Node *right;
+        ParentsTree *parTree;
+        bool checkRootOfSubRev;
 
         friend class ConcatStringTree;
     public:
@@ -50,11 +53,59 @@ public:
         Node(const char *s);
         Node(string s);
         ~Node();
+        void addIDForChildren(Node *node);
+    };
+};
+
+class ParentsTree {
+// Forward declaration of AVLNode and static member id_max
+public:
+    class AVLNode;
+    static int id_max;
+// Declare attributes and methods for ParentsTree
+private:
+    AVLNode *root;
+    int id_node;
+    int count;
+private:
+    int height(AVLNode *node);
+    int diff(AVLNode *node);
+    AVLNode *rotateRight(AVLNode *node);
+    AVLNode *rotateLeft(AVLNode *node);
+    void rebalance(AVLNode * & node);
+    bool searchRec(AVLNode *node, const int &id) const;
+    AVLNode *insertRec(AVLNode *&node, const int &id);
+    AVLNode *removeRec(AVLNode *&node, const int &id);
+    void clearRec(AVLNode *node);
+    string toStringRec(AVLNode *node) const;
+public:
+    ParentsTree();
+    ~ParentsTree();
+    void insert(const int &id);
+    void remove(const int &id);
+    int getId() const;
+    bool isEmpty() const;
+
+    int size() const;
+    string toStringPreOrder() const;
+
+public:
+    class AVLNode {
+    private:
+        int id;
+        AVLNode *left;
+        AVLNode *right;
+        int height;
+
+        friend class ParentsTree;
+    public:
+        AVLNode();
+        AVLNode(int id_of_par_node);
     };
 };
 
 class ReducedConcatStringTree; // forward declaration
-class LitStringHash;
+class LitStringHash; // forward declaration
 
 class HashConfig {
 private:
@@ -73,14 +124,14 @@ private:
 
 class LitStringHash {
 public:
-    LitStringHash(const HashConfig & hashConfig);
-    int getLastInsertedIndex() const;
-    string toString() const;
+    LitStringHash(const HashConfig & hashConfig) {};
+    int getLastInsertedIndex() const {return -1;};
+    string toString() const {return "";};
 };
 
 class ReducedConcatStringTree /* */ {
 public:
-    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
+    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash) {};
     LitStringHash *litStringHash;
 };
 

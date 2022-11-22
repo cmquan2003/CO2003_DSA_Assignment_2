@@ -6,7 +6,7 @@ ConcatStringTree::Node::Node() : data(NULL), length(0), leftLength(0), left(NULL
 {
     parTree = new ParentsTree;
 }
-ConcatStringTree::Node::Node(const char *s) : leftLength(0), left(NULL), right(NULL), parTree(NULL), checkRootOfSubRev(false)
+ConcatStringTree::Node::Node(const char *s) : data(NULL), leftLength(0), left(NULL), right(NULL), parTree(NULL), checkRootOfSubRev(false)
 {
     length = 0;
     while (s[length] != '\0') length++;
@@ -17,7 +17,7 @@ ConcatStringTree::Node::Node(const char *s) : leftLength(0), left(NULL), right(N
 
     parTree = new ParentsTree;
 }
-ConcatStringTree::Node::Node(string s) : leftLength(0), left(NULL), right(NULL), parTree(NULL), checkRootOfSubRev(false)
+ConcatStringTree::Node::Node(string s) : data(NULL), leftLength(0), left(NULL), right(NULL), parTree(NULL), checkRootOfSubRev(false)
 {
     length = s.size();
 
@@ -265,16 +265,17 @@ void ConcatStringTree::clear(Node *node)
             node->right->parTree->remove(id);
             clear(node->right);
         }
-        delete node;
+        delete node; node = NULL;
     }
 }
 ConcatStringTree::~ConcatStringTree()
 {
     // Delete root's id in its parTree
     // Clear the root (above)
+    if (root == NULL) return;
     int id = root->parTree->getId();
     root->parTree->remove(id);
-    clear(root);
+    clear(root); root = NULL;
 }
 
 // Section 3.3: class ParentsTree
@@ -504,5 +505,295 @@ string ConcatStringTree::getParTreeStringPreOrder(const string &query) const
 }
 
 // Section 3.4: class ReducedConcatStringTree and LitStringHash
-//// Part 1:
-//// Part 2:
+//// Part 1: Implementation for HashConfig and LitStringHash
+//// HashConfig
+HashConfig::HashConfig(int p, double c1, double c2, double lambda, double alpha, int initSize)
+                    : p(p), c1(c1), c2(c2), lambda(lambda), alpha(alpha), initSize(initSize) {}
+HashConfig::HashConfig() : p(0), c1(0), c2(0), lambda(0), alpha(0), initSize(0) {}
+HashConfig &HashConfig::operator=(const HashConfig &otherH)
+{
+    this->p = otherH.p;
+    this->c1 = otherH.c1;
+    this->c2 = otherH.c2;
+    this->lambda = otherH.lambda;
+    this->alpha = otherH.alpha;
+    this->initSize = otherH.initSize;
+    return *this;
+}
+//// LitString
+LitStringHash::LitString::LitString(const char *s) : data(NULL), count_link(0)
+{
+    int n = 0;
+    while (s[n] != '\0') n++;
+    data = new char[n + 1];
+    for (int i = 0; i < n; i++) data[i] = s[i];
+    data[n] = '\0';
+}
+LitStringHash::LitString::~LitString()
+{
+    if (this->data != NULL) delete[] this->data;
+    this->data = NULL;
+}
+//// LitStringHash
+////// 3.4.1 (Constructor)
+LitStringHash::LitStringHash(const HashConfig & hashConfig) : table(NULL), status(NULL), count(0), last_inserted(-1)
+{
+    this->hashConfig = hashConfig;
+    this->table_size = hashConfig.initSize;
+    this->table = new LitString*[table_size];
+    this->status = new STATUS[table_size];
+    for (int i = 0; i < table_size; i++) {
+        this->table[i] = NULL;
+        this->status[i] = NIL;
+    }
+}
+////// Hash and probe function
+int LitStringHash::hash(const char *s)
+{
+    int p = this->hashConfig.p, m = this->table_size;
+    int res = 0, power = 1, i = 0, num;
+    while (s[i] != '\0') {
+        num = (int)s[i];
+        res = (res + ((num % m) * power) % m) % m;
+        power = (power*(p % m)) % m;
+        i++;
+    }
+    return res;
+}
+int LitStringHash::hp(int hashed, int i)
+{
+    double c1 = this->hashConfig.c1, c2 = this->hashConfig.c2;
+    int m = this->table_size;
+    int tmp = (int)(c1*i+c2*i*i);
+    return ((hashed % m) + (tmp % m)) % m;
+}
+////// Rehash
+void LitStringHash::rehash()
+{
+    double alpha = this->hashConfig.alpha;
+    int old_size = this->table_size;
+    LitString **old_table = this->table;
+    STATUS *old_status = this->status;
+
+    this->table_size = (int)(alpha*old_size);
+    this->table = new LitString*[this->table_size];
+    this->count = 0;
+    this->status = new STATUS[this->table_size];
+    for (int i = 0; i < table_size; i++) {
+        this->table[i] = NULL;
+        status[i] = NIL;
+    }
+
+    for (int i = 0; i < old_size; i++) {
+        if (old_status[i] == NON_EMPTY) insertRehash(old_table[i]);
+    }
+
+    for (int i = 0; i < old_size; i++) old_table[i] = NULL;
+    delete[] old_table;
+    delete[] old_status;
+}
+void LitStringHash::insertRehash(LitString *lit)
+{
+    double lambda = hashConfig.lambda;
+    char *tmp = lit->data;
+    int i = 0, slot;
+    int hashed = hash(tmp);
+    do {
+        slot = hp(hashed, i);
+        if (status[slot] != NON_EMPTY) {
+            status[slot] = NON_EMPTY;
+            table[slot] = lit;
+            ++count;
+            return;
+        }
+        ++i;
+    } while (i < table_size);
+    throw runtime_error("No possible slot");
+}
+////// Compare 2 cstring
+bool LitStringHash::strcomp(const char *s1, const char *s2)
+{
+    int i = 0;
+    while (s1[i] != '\0' && s2[i] != '\0') {
+        if (s1[i] != s2[i]) return false;
+        ++i;
+    }
+    return (s1[i] == '\0' && s2[i] == '\0');
+}
+////// Search
+int LitStringHash::search(const char *s) {
+    if (table == NULL) initialize();
+    int i = 0, slot;
+    int hashed = hash(s);
+    do {
+        slot = hp(hashed, i);
+        if (status[slot] == NON_EMPTY && strcomp(table[slot]->data, s)) return slot;
+        ++i;
+    } while (i < table_size);
+    return -1;
+}
+////// Insertion
+void LitStringHash::insert(const char *s) {
+    if (table == NULL) initialize();
+    if (search(s) != -1) return;
+    double lambda = hashConfig.lambda;
+    int i = 0, slot;
+    int hashed = hash(s);
+    do {
+        slot = hp(hashed, i);
+        if (status[slot] != NON_EMPTY) {
+            status[slot] = NON_EMPTY;
+            table[slot] = new LitString(s);
+            ++count;
+            last_inserted = slot;
+            break;
+        }
+        ++i;
+    } while (i < table_size);
+    if (i >= table_size) throw runtime_error("No possible slot");
+    double load_factor = 1.0*count/table_size;
+    if (load_factor > lambda) {
+        rehash();
+        last_inserted = search(s);
+    }
+}
+////// Deletion
+void LitStringHash::remove(const char *s) {
+    int i = 0, slot;
+    int hashed = hash(s);
+    do {
+        slot = hp(hashed, i);
+        if (status[slot] == NIL) return;
+        if (status[slot] == NON_EMPTY && strcomp(table[slot]->data, s)) {
+            status[slot] = DELETED;
+            delete table[slot]; table[slot] = NULL;
+            --count;
+            if (count == 0) clear();
+            return;
+        }
+        ++i;
+    } while (i < table_size);
+}
+////// Reconstruct the hash table
+void LitStringHash::initialize()
+{
+    this->clear();
+    this->table_size = hashConfig.initSize;
+    this->table = new LitString*[table_size];
+    this->status = new STATUS[table_size];
+    for (int i = 0; i < table_size; i++) {
+        this->table[i] = NULL;
+        this->status[i] = NIL;
+    }
+}
+////// Clear the hash table
+void LitStringHash::clear()
+{
+    for (int i = 0; i < table_size; i++) {
+        if (table[i] != NULL) {
+            delete table[i]; table[i] = NULL;
+        }
+    }
+    if (table != NULL) delete[] table;
+    if (status != NULL) delete[] status;
+    table = NULL; status = NULL;
+    table_size = 0;
+    count = 0;
+    last_inserted = -1;
+}
+////// Destructor
+LitStringHash::~LitStringHash()
+{
+    this->clear();
+}
+// 3.4.2
+int LitStringHash::getLastInsertedIndex() const
+{
+    return last_inserted;
+}
+// 3.4.3
+std::string LitStringHash::toString() const
+{
+    string res = "LitStringHash[";
+    for (int i = 0; i < table_size; i++) {
+        if (i != 0) res += ";";
+        if (status[i] == NON_EMPTY) {
+            res += "(litS=\"";
+            res += table[i]->data;
+            res += "\")";
+        }
+        else res += "()";
+    }
+    res += "]";
+    return res;
+}
+//// Part 2: Implementation for ReducedConcatStringTree
+// 3.4.4 (Constructor)
+ReducedConcatStringTree::ReducedConcatStringTree(const char *s, LitStringHash *litStringHash)
+{
+    this->litStringHash = litStringHash;
+    this->root = new Node;
+
+    int slot = litStringHash->search(s);
+    if (slot == -1) {
+        litStringHash->insert(s);
+        slot = litStringHash->last_inserted;      
+    }
+    this->root->data = litStringHash->table[slot]->data;
+    (litStringHash->table[slot]->count_link)++;
+
+    while (root->data[root->length] != '\0') root->length++;
+}
+ReducedConcatStringTree::ReducedConcatStringTree() : ConcatStringTree(), litStringHash(NULL) {}
+// Override Concatenation
+ReducedConcatStringTree ReducedConcatStringTree::concat(const ReducedConcatStringTree &otherS) const
+{
+    ReducedConcatStringTree res;
+    res.litStringHash = this->litStringHash;
+    res.root = new Node;
+
+    (res.root)->left = this->root;
+    (res.root)->right = otherS.root;
+    (res.root)->data = NULL;
+    (res.root)->length = this->root->length + otherS.root->length;
+    (res.root)->leftLength = this->root->length;
+
+    (res.root)->addIDForChildren(res.root);
+    return res;
+}
+// No more subString and reverse
+void ReducedConcatStringTree::subString(int from, int to) const
+{}
+void ReducedConcatStringTree::reverse() const
+{}
+// Clear tree and Destructor
+void ReducedConcatStringTree::clear(ConcatStringTree::Node *node)
+{
+    if (node == NULL) return;
+    if (node->parTree->isEmpty()) {
+        int id = node->parTree->getId();
+        if (node->left != NULL) {
+            node->left->parTree->remove(id);
+            clear(node->left);
+        }
+        if (node->right != NULL) {
+            node->right->parTree->remove(id);
+            clear(node->right);
+        }
+        if (node->left == NULL && node->right == NULL) {
+            int slot = litStringHash->search(node->data);
+            (litStringHash->table[slot]->count_link)--;
+            if ((litStringHash->table[slot]->count_link) == 0) litStringHash->remove(node->data);
+            node->data = NULL;
+        }
+        delete node; node = NULL;
+    }
+}
+ReducedConcatStringTree::~ReducedConcatStringTree()
+{
+    if (root == NULL) return;
+    int id = root->parTree->getId();
+    root->parTree->remove(id);
+    clear(root); root = NULL;
+    litStringHash = NULL;
+}

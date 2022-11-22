@@ -9,10 +9,10 @@ class ConcatStringTree {
 public:
     class Node;
 // Declare attributes and methods for ConcatStringTree
-private:
+protected:
     Node *root;
 
-private:
+protected:
     ConcatStringTree();
     int indexOfRec(Node *node, char c) const;
     string preOrderRec(Node *node) const;
@@ -38,7 +38,7 @@ public:
 
 public:
     class Node {
-    private:
+    protected:
         char *data;
         int length;
         int leftLength;
@@ -48,6 +48,7 @@ public:
         bool checkRootOfSubRev;
 
         friend class ConcatStringTree;
+        friend class ReducedConcatStringTree;
     public:
         Node();
         Node(const char *s);
@@ -117,22 +118,76 @@ private:
 
     friend class ReducedConcatStringTree;
     friend class LitStringHash;
-// public:
-//     HashConfig() {};
-//     HashConfig(int p, double c1, double c2, double lambda, int alpha, int initSize) {};
+public:
+    HashConfig(int p, double c1, double c2, double lambda, double alpha, int initSize);
+    HashConfig();
+    HashConfig &operator=(const HashConfig &otherH);
 };
 
+enum STATUS {NIL, DELETED, NON_EMPTY};
 class LitStringHash {
 public:
-    LitStringHash(const HashConfig & hashConfig) {};
-    int getLastInsertedIndex() const {return -1;};
-    string toString() const {return "";};
+    class LitString; // forward declaration
+private:
+    HashConfig hashConfig;
+    int table_size;
+    LitString **table;
+    STATUS *status;
+    int count;
+    int last_inserted;
+
+    friend class ReducedConcatStringTree;
+private:
+    int hash(const char *s);
+    int hp(int hashed, int i);
+    void rehash();
+    void insertRehash(LitString *lit);
+    bool strcomp(const char *s1, const char *s2);
+    int search(const char *s);
+    void insert(const char *s);
+    void remove(const char *s);
+    void initialize();
+    void clear();
+public:
+    LitStringHash(const HashConfig & hashConfig);
+    int getLastInsertedIndex() const;
+    string toString() const;
+
+    ~LitStringHash();
+public:
+    class LitString {
+    private:
+        char *data;
+        int count_link;
+
+    friend class LitStringHash;
+    friend class ReducedConcatStringTree;
+    public:
+        LitString(const char *s);
+        ~LitString();
+    };
 };
 
-class ReducedConcatStringTree /* */ {
+class ReducedConcatStringTree : public ConcatStringTree {
 public:
-    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash) {};
     LitStringHash *litStringHash;
+
+    ReducedConcatStringTree(const char * s, LitStringHash * litStringHash);
+    ReducedConcatStringTree();
+    void clear(Node *node);
+    ~ReducedConcatStringTree();
+    ReducedConcatStringTree concat(const ReducedConcatStringTree & otherS) const;
+    void subString(int from, int to) const;
+    void reverse() const;
+    // Reuse methods:
+    // int length() const;
+    // char get(int index) const;
+    // int indexOf(char c) const;
+    // string toStringPreOrder() const;
+    // string toString() const;
+    
+    // int getParTreeSize(const string & query) const;
+    // string getParTreeStringPreOrder(const string & query) const;
 };
 
 #endif // __CONCAT_STRING_TREE_H__

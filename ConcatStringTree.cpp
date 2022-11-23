@@ -564,8 +564,9 @@ int LitStringHash::hp(int hashed, int i)
 {
     double c1 = this->hashConfig.c1, c2 = this->hashConfig.c2;
     int m = this->table_size;
-    int tmp = (int)(c1*i+c2*i*i);
-    return ((hashed % m) + (tmp % m)) % m;
+    double tmp = c1*i+c2*i*i;
+    int res = ((hashed % m) + ((long long)tmp % m)) % m;
+    return res;
 }
 ////// Rehash
 void LitStringHash::rehash()

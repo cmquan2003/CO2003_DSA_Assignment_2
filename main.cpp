@@ -99,6 +99,33 @@ void tcBasic() {
     cout << s2.getParTreeStringPreOrder("") << endl;
     cout << s3.getParTreeStringPreOrder("") << endl;
 }
+void tcMultiFunct() {
+    ConcatStringTree s1("Hello,_t"), s2("his_is_an_assignment.");
+    ConcatStringTree s3(s1.concat(s2).reverse()); // ConcatStringTree[".tnemngissa_na_si_siht_,olleH"]
+    ConcatStringTree s4(s1.concat(s2).subString(7, 18)); // ConcatStringTree["this_is_an_"]
+    ConcatStringTree s5(s1.concat(s2.reverse())); // ConcatStringTree["Hello,_t.tnemngissa_na_si_sih"]
+    ConcatStringTree s6(s1.concat(s2.subString(4, 21))); // ConcatStringTree["Hello,_tis_an_assignment."]
+    ConcatStringTree s7(s1.reverse().concat(s2)); // ConcatStringTree["t_,olleHhis_is_an_assignment."]
+    ConcatStringTree s8(s7.reverse().subString(3, 8));
+    ConcatStringTree s9(s4.reverse().reverse());
+    ConcatStringTree s10(s5.reverse().concat(s9.subString(3, 6)));
+    ConcatStringTree s11(s4.subString(0, 5).concat(s2));
+    ConcatStringTree s12(s11.subString(0, 5).reverse());
+    ConcatStringTree s13(s3.subString(0, 8).subString(2,6));
+    ConcatStringTree s14(s1.subString(1, 7).concat(s3.reverse()));
+    cout << s3.toString() << endl;
+    cout << s4.toString() << endl;
+    cout << s5.toString() << endl;
+    cout << s6.toString() << endl;
+    cout << s7.toString() << endl;
+    cout << s8.toString() << endl;
+    cout << s9.toString() << endl;
+    cout << s10.toString() << endl;
+    cout << s11.toString() << endl;
+    cout << s12.toString() << endl;
+    cout << s13.toString() << endl;
+    cout << s14.toString() << endl;
+}
 void tcParentsTree() {
     ConcatStringTree sA("ABC"), sB("DEF"), sC("GHI");
     ConcatStringTree s1 = sA.concat(sB);
@@ -176,6 +203,34 @@ void tcLit() {
 
     delete s6;
     delete litStringHash;
+}
+void tcResetLit() {
+    HashConfig conf(13, 2.5, 12.66, 0.7, 1.7, 4);
+    LitStringHash *hash = new LitStringHash(conf);
+
+    ReducedConcatStringTree *s1 = new ReducedConcatStringTree("bbb", hash);
+    ReducedConcatStringTree *s2 = new ReducedConcatStringTree("abc", hash);
+    cout << hash->getLastInsertedIndex() << endl;
+    cout << hash->toString() << endl;
+    ReducedConcatStringTree *s3 = new ReducedConcatStringTree("aca", hash);
+    ReducedConcatStringTree *s4 = new ReducedConcatStringTree("aaaaa", hash);
+    cout << hash->getLastInsertedIndex() << endl;
+    cout << hash->toString() << endl;
+
+    delete s1; delete s2; delete s3; delete s4;
+    cout << hash->getLastInsertedIndex() << endl;
+
+    s1 = new ReducedConcatStringTree("abc", hash);
+    s2 = new ReducedConcatStringTree("zxy", hash);
+    s3 = new ReducedConcatStringTree("bbb", hash);
+    cout << hash->getLastInsertedIndex() << endl;
+    cout << hash->toString() << endl;
+
+    s4 = new ReducedConcatStringTree("bbb", hash);
+    cout << hash->getLastInsertedIndex() << endl;
+    cout << hash->toString() << endl;
+    delete s1; delete s2; delete s3; delete s4;
+    delete hash;
 }
 void Hieutc(){
     ConcatStringTree s1("this_is_");
@@ -336,6 +391,157 @@ void Hieutc3()
 
     cout << "--------------------------------------------------------------" << '\n';
 }
+void Hieutc4() {
+    HashConfig config(37, 3*1e9, 3.141592654, 0.6, 2.1, 11);
+
+    LitStringHash * hash = new LitStringHash(config);
+    ReducedConcatStringTree * s1 = new ReducedConcatStringTree("Hello_I_am_HCMUT_students._",hash);
+    ReducedConcatStringTree * s2 = new ReducedConcatStringTree("I_Really_Love_my_Schools",hash);
+    ReducedConcatStringTree * s3 = new ReducedConcatStringTree("I_Found_",hash);
+    ReducedConcatStringTree * s4 = new ReducedConcatStringTree("DSA_is_easy",hash);
+    ReducedConcatStringTree * s5 = new ReducedConcatStringTree("_",hash);
+    ReducedConcatStringTree * s6 = new ReducedConcatStringTree("ALL_Thing",hash);cout << hash->toString() << endl << endl;
+    ReducedConcatStringTree * s7 = new ReducedConcatStringTree("I_said",hash);
+    ReducedConcatStringTree * s8 = new ReducedConcatStringTree("is_a_joke",hash);
+    
+    ReducedConcatStringTree * s9 = new ReducedConcatStringTree(s1->concat(*s2));
+    ReducedConcatStringTree * s10 = new ReducedConcatStringTree(s3->concat(*s4));
+    ReducedConcatStringTree * s11 = new ReducedConcatStringTree(s9->concat(*s10));
+    cout << hash->toString() << endl;
+    delete s1;
+    delete s2;
+    delete s3;
+    delete s4;
+    delete s5;
+    delete s6;
+    delete s7;
+    delete s8;
+    delete s9;
+    delete s10;
+    delete s11;
+    delete hash;
+    cout << "finish" << endl;
+}
+void Phuctc(){
+    ConcatStringTree* s1 = new ConcatStringTree("123"); // ConcatStringTree["123"]
+    ConcatStringTree* s2 = new ConcatStringTree("456"); // ConcatStringTree["456"]
+    ConcatStringTree* s4 = new ConcatStringTree("789"); // ConcatStringTree["789"]
+    ConcatStringTree* s8 = new ConcatStringTree("012"); // ConcatStringTree["012"]
+    ConcatStringTree* s3 = new ConcatStringTree(s1->concat(*s2)); // ConcatStringTree["123456"]
+    ConcatStringTree* s9 = new ConcatStringTree(s4->concat(*s8)); // ConcatStringTree["789012"]
+    ConcatStringTree* s10 = new ConcatStringTree(s3->concat(*s9)); // ConcatStringTree["123456789012"]
+    ConcatStringTree* s5 = new ConcatStringTree(s10->subString(0,s10->length())); // ConcatStringTree["123456789012"]
+    ConcatStringTree* s6 = new ConcatStringTree(s10->reverse()); // ConcatStringTree["210987654321"]
+    ConcatStringTree* s7 = new ConcatStringTree(s5->concat(*s6)); // ConcatStringTree["123456789012210987654321"]
+    delete s3;
+    delete s1;
+    delete s2;
+    delete s4;
+    delete s6;
+    delete s8;
+    delete s10;
+    delete s9;
+    delete s5;
+    delete s7;
+}
+void Phuctc2(){
+    HashConfig hashConfig(
+        2,
+        0.5,
+        0.5,
+        0.7,
+        1.5,
+        4
+    );
+    LitStringHash * litStringHash = new LitStringHash(hashConfig);
+    ReducedConcatStringTree * s1 = new ReducedConcatStringTree("a", litStringHash);
+    ReducedConcatStringTree * s2 = new ReducedConcatStringTree("bb", litStringHash);
+
+    cout << s1->toString() << endl;
+    cout << s2->toString() << endl;
+    ReducedConcatStringTree * s3 = new ReducedConcatStringTree(s1->concat(*s2));
+    ReducedConcatStringTree * s4 = new ReducedConcatStringTree("a", litStringHash);
+    ReducedConcatStringTree * s5 = new ReducedConcatStringTree("bb", litStringHash);
+    ReducedConcatStringTree * s6 = new ReducedConcatStringTree(s4->concat(*s5));
+    ReducedConcatStringTree * s7 = new ReducedConcatStringTree(s3->concat(*s6));
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<litStringHash->toString()<<endl;
+    ReducedConcatStringTree * s8 = new ReducedConcatStringTree("c", litStringHash);
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<"Before: "<<litStringHash->toString()<<endl;
+    delete s8;
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<"After deleting: "<<litStringHash->toString()<<endl;
+    s8 = new ReducedConcatStringTree("c", litStringHash);
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<"End: "<<litStringHash->toString()<<endl;
+    ReducedConcatStringTree * s9 = new ReducedConcatStringTree("dd", litStringHash);
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<litStringHash->toString()<<endl;
+    ReducedConcatStringTree * s10 = new ReducedConcatStringTree("e", litStringHash);
+    ReducedConcatStringTree * s11 = new ReducedConcatStringTree("f", litStringHash);
+    ReducedConcatStringTree * s12 = new ReducedConcatStringTree(s6->concat(*s8));
+    cout << litStringHash->getLastInsertedIndex() << endl;
+    cout<<litStringHash->toString()<<endl;
+    delete s3;
+    delete s6;
+    delete s1;
+    delete s2;
+    delete s12;
+    delete s4;
+    delete s5;
+    delete s7;
+    delete s8;
+    delete s9;
+    delete s10;
+    delete s11;
+    delete litStringHash;
+}
+void Phuctc3() {
+    ConcatStringTree * s1 = new ConcatStringTree("a");
+    ConcatStringTree * s2 = new ConcatStringTree("b");
+    ConcatStringTree * s3 = new ConcatStringTree(s1->concat(*s2));
+    ConcatStringTree * s4 = new ConcatStringTree("c");
+    ConcatStringTree * s5 = new ConcatStringTree(s2->concat(*s4));
+    ConcatStringTree * s6 = new ConcatStringTree("d");
+    ConcatStringTree * s7 = new ConcatStringTree(s3->concat(*s6));
+    ConcatStringTree * s8 = new ConcatStringTree(s5->concat(*s6));
+    ConcatStringTree * s9 = new ConcatStringTree(s7->concat(*s8));
+    ConcatStringTree * s10 = new ConcatStringTree(s1->concat(*s6));
+    ConcatStringTree * s11 = new ConcatStringTree(s5->concat(*s6));
+    cout << s9->toString() << endl;
+    // ""abdbcd"
+    cout << s6->getParTreeStringPreOrder("") << endl; 
+    // ParentsTree[(id=7);(id=6);(id=10);(id=8);(id=11)]
+    cout << s5->getParTreeStringPreOrder("l") << endl;
+    // ParentsTree[(id=3);(id=2);(id=5)]
+    delete s7;
+    cout << s6->getParTreeSize("") << endl;
+    cout << s6->getParTreeStringPreOrder("") << endl;
+    delete s9;
+    cout << s6->getParTreeSize("") << endl;
+    cout << s6->getParTreeStringPreOrder("") << endl;
+    delete s10;
+    cout << s1->getParTreeStringPreOrder("") << endl;
+    delete s2;
+    delete s3;
+    delete s4;
+    delete s1;
+    delete s6;
+    delete s8; 
+    delete s5;
+    delete s11;
+    /*
+    ConcatStringTree["abdbcd"]
+    ParentsTree[(id=7);(id=6);(id=10);(id=8);(id=11)]
+    ParentsTree[(id=3);(id=2);(id=5)]
+    5
+    ParentsTree[(id=7);(id=6);(id=10);(id=8);(id=11)]
+    4
+    ParentsTree[(id=10);(id=6);(id=8);(id=11)]
+    ParentsTree[(id=3);(id=1)]
+    */
+}
 int main() {
     // tc1();
     // tc2();
@@ -343,12 +549,18 @@ int main() {
     // tc4();
     // tc5();
     // tcBasic();
+    // tcMultiFunct();
     // tcParentsTree();
-    tcLit();
+    // tcLit();
+    // tcResetLit();
     // Hieutc();
     // randomtc();
     // Hieutc2();
     // Hieutc3();
+    // Hieutc4();
+    // Phuctc();
+    // Phuctc2();
+    // Phuctc3();
     cout << "\nTesting Succeeded";
     return 0;
 }
